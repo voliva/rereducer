@@ -1,5 +1,4 @@
 import getState from './getState'
-import createReducer from './createReducer'
-import { path } from './utils/index'
+import { getter } from './path'
 
-export default route => createReducer([route, getState], path)
+export default getter(getState)

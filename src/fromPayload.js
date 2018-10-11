@@ -1,3 +1,4 @@
 import fromAction from './fromAction'
+import { getter } from './path'
 
-export default route => fromAction(['payload', ...route])
+export default getter(fromAction('payload'))
