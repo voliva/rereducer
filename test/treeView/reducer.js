@@ -1,16 +1,11 @@
-import { switchReducers, innerReducer, fromAction, outerReducer, createReducer, getState, reject, concat } from "../../src";
-import { INCREMENT, CREATE_NODE, DELETE_NODE, ADD_CHILD, REMOVE_CHILD } from "./actions";
-import { compose, flatten, prop, flip, contains, equals, inc } from 'ramda';
+import { compose, contains, equals, flatten, flip, inc, isNil, not, prop } from 'ramda';
+import { combineReducers } from "redux";
+import { concat, createReducer, fromAction, getState, innerReducer, reject, switchReducers } from "../../src";
+import { ADD_CHILD, CREATE_NODE, DELETE_NODE, INCREMENT, REMOVE_CHILD } from "./actions";
 
 const getNodeId = fromAction(['nodeId']);
+const hasNodeId = compose(not, isNil, getNodeId);
 const getChildId = fromAction(['childId']);
-const childIdsPath = [getNodeId, 'childIds'];
-const newNodeTemplate = {
-    id: getNodeId,
-    counter: 0,
-    childIds: []
-};
-const incrementCounter = innerReducer([getNodeId, 'counter'], inc);
 const getNode = createReducer([getNodeId, getState], prop);
 const isChildId = compose(equals, getChildId);
 
@@ -22,26 +17,35 @@ const getAllTreeIds = (byId, node) => flatten([
     ], [])
 ]);
 const getAllTargetTreeIds = createReducer([getState, getNode], getAllTreeIds);
-const isInTargetId = compose(
-    ids => compose(
-        flip(contains)(ids),
-        prop('id')
-    ),
-    getAllTargetTreeIds
-);
+const containsIds = ids => compose(flip(contains)(ids), prop('id'));
+const isInTargetId = compose(containsIds, getAllTargetTreeIds);
 
-const createNode = outerReducer([getNodeId], newNodeTemplate);
 const deleteNode = reject(isInTargetId);
 const concatChildId = concat(getChildId);
 const rejectChildId = reject(isChildId);
-const addChild = innerReducer(childIdsPath, concatChildId);
-const removeChild = innerReducer(childIdsPath, rejectChildId);
+
+const idReducer = switchReducers(
+    null,
+    [CREATE_NODE, getNodeId]
+);
+const counterReducer = switchReducers(
+    0,
+    [INCREMENT, inc]
+);
+const childIdsReducer = switchReducers(
+    [],
+    [ADD_CHILD, concatChildId],
+    [REMOVE_CHILD, rejectChildId],
+);
+
+const childReducer = innerReducer([getNodeId], combineReducers({
+    id: idReducer,
+    counter: counterReducer,
+    childIds: childIdsReducer
+}));
 
 export default switchReducers(
     {},
-    [INCREMENT, incrementCounter],
-    [CREATE_NODE, createNode],
     [DELETE_NODE, deleteNode],
-    [ADD_CHILD, addChild],
-    [REMOVE_CHILD, removeChild],
+    [hasNodeId, childReducer]
 );
