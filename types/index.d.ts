@@ -1,5 +1,4 @@
-import { Path } from "path";
-import { FROM_STATE, FROM_ACTION, FROM_PAYLOAD, FROM_META, FromActionNoArgs, FromStateNoArgs } from "path";
+import { Path, FROM_STATE, FROM_ACTION, FROM_PAYLOAD, FROM_META, FromActionNoArgs, FromStateNoArgs } from "./path";
 
 // TypeScript Version: 2.9
 
