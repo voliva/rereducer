@@ -139,97 +139,92 @@ export interface Path<Type extends FROMS> {
         : Type extends FROM_META ? FromMetaNoArgs : never
 }
 
-type PathReducer<KS extends StringOrNumber[], S, TIS extends ToNullable<KS, S, LengthOf<KS>>> = (state: TIS, action: any) => TIS;
+type PathReducer<KS extends StringOrNumber[], S> = <TIS extends ToNullable<KS, S, LengthOf<KS>>>(state: TIS, action: any) => TIS;
 
-export interface InnerReducer<S> {
-    <
-        K1 extends ValidKeyType,
-        Path extends [K1],
-        KS extends ToStringOrNumberMap<Path>,
-        TIS extends ToNullable<KS, S, LengthOf<KS>>,
-    >
-    (path: Path, reducer: PathReducer<KS, S, TIS>): (state: S, action: any) => S;
-
-    <
-        K1 extends ValidKeyType,
-        K2 extends ValidKeyType,
-        Path extends [K1, K2],
-        KS extends ToStringOrNumberMap<Path>,
-        TIS extends ToNullable<KS, S, LengthOf<KS>>,
-    >
-    (path: Path, reducer: PathReducer<KS, S, TIS>): (state: S, action: any) => S;
+export interface InnerReducer {
+    (
+        path: ValidKeyType | Array<ValidKeyType>,
+        reducer: (state: any, action: any) => any
+    ): (state: any, action: any) => any;
 
     <
         K1 extends ValidKeyType,
         KS extends ToStringOrNumberMap<[K1]>,
-        TIS extends ToNullable<KS, S, LengthOf<KS>>,
-    >
-    (path: K1, reducer: PathReducer<KS, S, TIS>): (state: S, action: any) => S;
-}
-
-type AnyReducer = (state: any, action: any) => any;
-export function autoInnerReducer
-    <
-        K1 extends ValidKeyType,
-        Path extends [K1],
-        KS extends ToStringOrNumberMap<Path>,
-        TIS extends ToNullable<KS, S, LengthOf<KS>>,
-        S = any
-    >
-    (
-        path: Path,
-        reducer: PathReducer<KS, S, TIS>,
-        stateType?: S
-    ): (state: S, action: any) => S;
-// TIS needs to be declared here if we add stateType (and S) as optional, else it's not able to infer it in the reducer parameter when S = any.
-
-export function autoInnerReducer
-    <
-        K1 extends ValidKeyType,
-        K2 extends ValidKeyType,
-        Path extends [K1, K2],
-        KS extends ToStringOrNumberMap<Path>,
-        TIS extends ToNullable<KS, S, LengthOf<KS>>,
-        S = any
-    >
-    (
-        path: Path,
-        reducer: PathReducer<KS, S, TIS>,
-        stateType?: S
-    ): (state: S, action: any) => S;
-
-export function autoInnerReducer
-    <
-        K1 extends ValidKeyType,
-        KS extends ToStringOrNumberMap<[K1]>,
-        TIS extends ToNullable<KS, S, LengthOf<KS>>,
-        S = any
+        S
     >
     (
         path: K1,
-        reducer: PathReducer<KS, S, TIS>,
-        stateType?: S
+        reducer: PathReducer<KS, S>,
+        stateType: S
     ): (state: S, action: any) => S;
 
-// Alternative to optional stateType (and S) is to just declare a simplified overload:
-// type Getter = string | number | ((state: any, action: any) => (string | number));
-// export function autoInnerReducer
-//     <T>(
-//         path: Array<Getter>,
-//         reducer: (state: T, action: any) => T
-//     ): (state: any, action: any) => any;
-
-type PathPseudoreducer<KS extends StringOrNumber[], S, TIS extends ToNullable<KS, S, LengthOf<KS>>> = (state: any, action: any) => TIS;
-export function autoOuterReducer
     <
         K1 extends ValidKeyType,
         Path extends [K1],
         KS extends ToStringOrNumberMap<Path>,
-        TIS extends ToNullable<KS, S, LengthOf<KS>>,
+        S
+    >
+    (
+        path: Path,
+        reducer: PathReducer<KS, S>,
+        stateType: S
+    ): (state: S, action: any) => S;
+
+    <
+        K1 extends ValidKeyType,
+        K2 extends ValidKeyType,
+        Path extends [K1, K2],
+        KS extends ToStringOrNumberMap<Path>,
         S = any
     >
     (
         path: Path,
-        reducer: PathPseudoreducer<KS, S, TIS>,
-        stateType?: S
+        reducer: PathReducer<KS, S>,
+        stateType: S
     ): (state: S, action: any) => S;
+}
+
+type PathPseudoreducer<KS extends StringOrNumber[], S> = <TIS extends ToNullable<KS, S, LengthOf<KS>>>(state: S, action: any) => TIS;
+
+export interface OuterReducer {
+    (
+        path: ValidKeyType | Array<ValidKeyType>,
+        reducer: (state: any, action: any) => any
+    ): (state: any, action: any) => any;
+
+    <
+        K1 extends ValidKeyType,
+        KS extends ToStringOrNumberMap<[K1]>,
+        S
+    >
+    (
+        path: K1,
+        reducer: PathPseudoreducer<KS, S>,
+        stateType: S
+    ): (state: S, action: any) => S;
+
+    <
+        K1 extends ValidKeyType,
+        Path extends [K1],
+        KS extends ToStringOrNumberMap<Path>,
+        S
+    >
+    (
+        path: Path,
+        reducer: PathPseudoreducer<KS, S>,
+        stateType: S
+    ): (state: S, action: any) => S;
+
+    <
+        K1 extends ValidKeyType,
+        K2 extends ValidKeyType,
+        Path extends [K1,K2],
+        KS extends ToStringOrNumberMap<Path>,
+        S
+    >
+    (
+        path: Path,
+        reducer: PathPseudoreducer<KS, S>,
+        stateType: S
+    ): (state: S, action: any) => S;
+}

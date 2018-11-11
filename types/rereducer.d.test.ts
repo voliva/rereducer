@@ -1,6 +1,6 @@
-import rereducer, { fromState } from "rereducer";
+import rereducer, { fromState, innerReducer } from "rereducer";
 import { Action, Action1, Action2, ActionType, initialState, State } from 'storeTypes';
-import { InnerReducer, ValidKeyType, Keyable, ToStringOrNumberMap, ToNullable, LengthOf, autoInnerReducer } from "./path";
+import { ValidKeyType, ToStringOrNumberMap, ToNullable, LengthOf } from "./path";
 
 const myGenericReducer = (state: State, action: Action) => state;
 const myAction1Reducer = (state: State, action: Action1) => state;
@@ -30,13 +30,10 @@ const myState: StateTest = {
         }]
     }
 }
-const newInnerReducer: InnerReducer<any> = null as any;
 
-(newInnerReducer as InnerReducer<StateTest>)(['foo', 'bar'], (state, action) => state);
-(newInnerReducer as InnerReducer<StateTest>)('foo', (state, action) => state);
-autoInnerReducer(['foo', 'bar'], (state, action) => state, {} as StateTest);
-autoInnerReducer(['foo', 'bar'], (state: string, action: any) => state);
-autoInnerReducer('foo', (state, action) => state, {} as StateTest);
+innerReducer(['foo', 'bar'], (state, action) => state, {} as StateTest);
+innerReducer(['foo', 'bar'], (state, action: any) => state);
+innerReducer('foo', (state, action) => state, {} as StateTest);
 
 // const result = newInnerReducer!(['foo'], (state, action) => state);
 

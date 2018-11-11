@@ -1,4 +1,4 @@
-import { Path, FROM_STATE, FROM_ACTION, FROM_PAYLOAD, FROM_META, FromActionNoArgs, FromStateNoArgs } from "./path";
+import { Path, FROM_STATE, FROM_ACTION, FROM_PAYLOAD, FROM_META, FromActionNoArgs, FromStateNoArgs, InnerReducer, OuterReducer } from "./path";
 
 // TypeScript Version: 2.9
 
@@ -12,7 +12,7 @@ type CastableToReducer<TS, TA, TO = TS> =
   TemplateType<TS, TA, TO> |
   TO;
 
-/// rereducer
+/// switchReducers
 type MatcherFunction<TS, TA> = ReducerLikeFunction<TS, TA, boolean>;
 type AdvancedRuleDef<TS, TA> = [Matcher<TS, TA>, CastableToReducer<TS, TA>];
 type Matcher<TS, TA> = string | MatcherFunction<TS, TA> | MatcherArray<TS, TA>;
@@ -36,18 +36,11 @@ export type RuleDef<TS, TA extends ActionWithType> =
 export function switchReducers<TS, TA extends ActionWithType>(initialValue: TS, ...ruleDefs: Array<RuleDef<TS, TA>>): Reducer<TS, TA>;
 export default switchReducers;
 
-/// assocReducer
-type Getter<TS, TA> = string | ReducerLikeFunction<TS, TA, string>;
-export function outerReducer<TO, TS extends { [key: string]: TO }, TA>(
-  getters: Array<Getter<TS, TA>>,
-  reducer: CastableToReducer<TS, TA, TO>
-): Reducer<TS, TA>;
+/// outerReducer
+export declare const outerReducer: OuterReducer;
 
-/// subReducer
-export function innerReducer<TS, TA>(
-  getters: Array<Getter<TS, TA>>,
-  reducer: CastableToReducer<any, TA>
-): Reducer<TS, TA>;
+/// innerReducer
+export declare const innerReducer: InnerReducer;
 
 /// concatReducer
 export function concat<TS extends any[] | string, TA>(getter: CastableToReducer<TS, TA>): Reducer<TS, TA>;
