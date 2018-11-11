@@ -58,3 +58,13 @@ export declare const fromPayload: Path<FROM_PAYLOAD>;
 export declare const fromMeta: Path<FROM_META>;
 export declare const getAction: FromActionNoArgs
 export declare const getState: FromStateNoArgs
+
+// TODO
+// composeReducers,
+// createReducer,
+// filter,
+// map,
+// omit,
+// pick,
+// reject,
+// update
