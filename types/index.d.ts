@@ -1,4 +1,14 @@
-import { Path, FROM_STATE, FROM_ACTION, FROM_PAYLOAD, FROM_META, FromActionNoArgs, FromStateNoArgs, InnerReducer, OuterReducer } from "./path";
+import {
+    Path,
+    FROM_STATE,
+    FROM_ACTION,
+    FROM_PAYLOAD,
+    FROM_META,
+    FromActionNoArgs,
+    FromStateNoArgs,
+    InnerReducer,
+    OuterReducer
+} from "./path";
 
 // TypeScript Version: 2.9
 
@@ -59,12 +69,81 @@ export declare const fromMeta: Path<FROM_META>;
 export declare const getAction: FromActionNoArgs
 export declare const getState: FromStateNoArgs
 
+/// composeReducers
+export function composeReducers<TA, TS, TRet>(
+    reducer1: ReducerLikeFunction<TS, TA, TRet>
+): ReducerLikeFunction<TS, TA, TRet>;
+export function composeReducers<TA, TS, TS1, TRet>(
+    reducer1: ReducerLikeFunction<TS1, TA, TRet>,
+    reducer2: ReducerLikeFunction<TS, TA, TS1>
+): ReducerLikeFunction<TS, TA, TRet>;
+export function composeReducers<TA, TS, TS1, TS2, TRet>(
+    reducer1: ReducerLikeFunction<TS1, TA, TRet>,
+    reducer2: ReducerLikeFunction<TS2, TA, TS1>,
+    reducer3: ReducerLikeFunction<TS, TA, TS2>
+): ReducerLikeFunction<TS, TA, TRet>;
+export function composeReducers<TA, TS, TS1, TS2, TRet>(
+    reducer1: ReducerLikeFunction<TS1, TA, TRet>,
+    reducer2: ReducerLikeFunction<TS2, TA, TS1>,
+    reducer3: ReducerLikeFunction<TS, TA, TS2>
+): ReducerLikeFunction<TS, TA, TRet>;
+export function composeReducers<TA>(...reducers: ReducerLikeFunction<any, TA, any>[]): Reducer<any, TA>;
+
+/// withState utilities
+// export type WithState<T> = T extends (arg1: infer R, target: infer TT) => any ?
+//     (fn: ReducerLikeFunction<TT, any, R>) => Reducer<TT, any> :
+//     never;
+
+// export type FilterUpdaterFn = <T>(
+//     fn: T extends Array<infer R> ?
+//         (value: R, index: number, array: T) => boolean :
+//         T extends {[key: string]: infer R} ? (value: R, key: string, target: T) => boolean :
+//         never,
+//     target: T
+// ) => T;
+
+export function filter<T = any>(
+    fn: ReducerLikeFunction<
+        T,
+        any,
+        T extends Array<infer R> ? (value: R, index: number, array: T) => boolean :
+        T extends {[key: string]: infer R} ? (value: R, key: string, target: T) => boolean :
+        never
+        >
+): Reducer<T, any>;
+
+export const reject: typeof filter;
+
+export function map<T = any, TRet = any>(
+    fn: ReducerLikeFunction<
+        T[],
+        any,
+        (value: T, index: number, array: T[]) => TRet
+    >
+): ReducerLikeFunction<T[], any, TRet[]>;
+export function map<T extends {[key: string]: any}>(
+    fn: T extends Array<any> ? never : ReducerLikeFunction<
+        T,
+        any,
+        (value: any, key: string, object: T) => any
+    >
+): ReducerLikeFunction<T, any, {[P in keyof T]: any}>;
+
+// type Omit<T, K extends keyof T> = Pick<T, ({ [P in keyof T]: P } & { [P in K]: never } & { [x: string]: never })[keyof T]>;
+// export function omit<T, K extends keyof T>(
+//     keys: Array<K>
+// ): ReducerLikeFunction<T, any, Omit<T, K>>;
+// These two have the problem of partial inference - This would only work if
+// the consumer specifies T, but then we must provide a default for K.... which
+// if we set any/never as default, tsc gets lazy and accepts these for any value of keys.
+export function omit(
+    keys: string[]
+): ReducerLikeFunction<any, any, any>;
+
+export function pick(
+    keys: string[]
+): ReducerLikeFunction<any, any, any>;
+
 // TODO
-// composeReducers,
-// createReducer,
-// filter,
-// map,
-// omit,
-// pick,
-// reject,
+// createReducer, => Waiting for tests
 // update
